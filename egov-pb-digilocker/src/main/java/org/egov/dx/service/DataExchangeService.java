@@ -379,14 +379,13 @@ public class DataExchangeService {
 	    	 certificate.setExpiryDate("");
 	    	 certificate.setValidFromDate(a);
 	    	 certificate.setIssuedAt(payment.getTenantId());
-	    	 certificate.setStatus("");
 	         certificate.setIssueDate(a);
 	    	 certificate.setStatus("Active");
 	    	 
 	    	 IssuedBy issuedBy=new IssuedBy();
 	    	 Organization organization=new Organization();
-	    	 organization.setName("");
-	    	 organization.setType("SG");
+	    	 organization.setName(payment.getTenantId());
+	    	 organization.setType("Muncipal Body");
 	    	 Address address=new Address();
 	    	 address.setCountry("IN");
 	    	 organization.setAddress(address);
@@ -397,6 +396,8 @@ public class DataExchangeService {
 	    	 Person person = new Person();
 	    	 person.setAddress(address);
 	    	 person.setPhoto("");
+		 person.setName(payment.getPayerName());
+	    	 person.setPhone(payment.getMobileNumber());
 	    	 certificate.setIssuedTo(issuedTo);
 	    	 
 	    	 CertificateData certificateData=new CertificateData();
