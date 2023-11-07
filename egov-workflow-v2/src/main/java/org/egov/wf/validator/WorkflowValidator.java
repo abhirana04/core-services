@@ -169,6 +169,7 @@ public class WorkflowValidator {
                 ProcessInstance processInstanceFromDB = processStateAndAction.getProcessInstanceFromDb();
                 if(processInstanceFromDB!=null && processInstanceFromDB.getAction().equalsIgnoreCase(SENDBACKTOCITIZEN)){
                     List<String> assignes = processInstanceFromDB.getAssignes().stream().map(User::getUuid).collect(Collectors.toList());
+                    if(businessService.getBusinessService().equals("FIRENOC")==false) // skip this check for FIRENOC service, resolving problem for citizen not able to resubmit because of not actual creator
                     if(!assignes.contains(requestInfo.getUserInfo().getUuid()))
                         throw new CustomException("INVALID_USER","The user: "+requestInfo.getUserInfo().getUuid()+" is not authorized to take action");
                 }
