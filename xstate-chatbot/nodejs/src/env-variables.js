@@ -19,7 +19,7 @@ const envVariables = {
 
     supportedLocales: process.env.SUPPORTED_LOCALES || 'en_IN',
 
-    googleAPIKey: process.env.GOOGLE_MAPS_API_KEY || '',
+    googleAPIKey: process.env.GOOGLE_MAPS_API_KEY || 'AIzaSyAS6gWJ1oL6AhJnZnvjK6jmvQjeJBNvRx8',
 
     dateFormat: process.env.DATEFORMAT || 'DD/MM/YYYY',
     timeZone: process.env.TIMEZONE || 'Asia/Kolkata',
