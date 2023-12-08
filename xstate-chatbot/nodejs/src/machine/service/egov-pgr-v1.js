@@ -111,8 +111,8 @@ class PGRV1Service {
       let { localities, messageBundle } = await this.fetchLocalities(matchedCity);
       for(let locality of localities) {
         let localityName = messageBundle[locality]['en_IN'];
-        console.log(cityAndLocality.locality);
-        console.log(localityName);
+        console.log("locality 1:- ".cityAndLocality.locality);
+        console.log("locality 2:- ".localityName);
         if(localityName.toLowerCase() == cityAndLocality.locality.toLowerCase()) {
           matchedLocality = locality;
           matchedLocalityMessageBundle = messageBundle[locality];
