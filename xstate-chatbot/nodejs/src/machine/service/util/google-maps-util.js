@@ -8,7 +8,8 @@ async function getCityAndLocality(latlng) {
 
     let response = await fetch(reverseGeocodeURL);
     let responseJson = await response.json();
-
+    console.log(response);
+    console.log(reverseGeocodeURL);
     if(responseJson.status === 'OK') {
         let city = extractCityFrom(responseJson);
         let locality = extractLocalityFrom(responseJson);
