@@ -21,6 +21,9 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
+import java.util.ArrayList;
+import java.util.List;
+
 
 import java.io.IOException;
 import java.net.URI;
@@ -54,50 +57,103 @@ public class ccAvanueGateway implements Gateway {
         this.objectMapper = objectMapper;
         this.ACTIVE = Boolean.valueOf(environment.getRequiredProperty("ccavanue.active"));
         this.MERCHANT_WORKING_KEY = environment.getRequiredProperty("ccavanue.merchant.workingkey");
-       this.MERCHANT_KEY_ID = environment.getRequiredProperty("ccavanue.merchant.id");
+        this.MERCHANT_KEY_ID = environment.getRequiredProperty("ccavanue.merchant.id");
         this.MERCHANT_ACCESS_CODE = environment.getRequiredProperty("ccavanue.merchant.accesscode");
         this.MERCHANT_URL_PAY = environment.getRequiredProperty("ccavanue.url");
         this.MERCHANT_URL_STATUS = environment.getRequiredProperty("ccavanue.url.status");
         this.MERCHANT_PATH_PAY = environment.getRequiredProperty("ccavanue.path.pay");
         this.MERCHANT_PATH_STATUS = environment.getRequiredProperty("ccavanue.path.status");
     }
+    class KeyValuePair {
+        private String key;
+        private String value;
 
+        public KeyValuePair(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
     @Override
     public URI generateRedirectURI(Transaction transaction) {
 
-        String hashSequence = "key|txnid|amount|productinfo|firstname|email|||||||||||";
-        hashSequence = hashSequence.concat(MERCHANT_ACCESS_CODE);
-        hashSequence = hashSequence.replace("key", MERCHANT_WORKING_KEY);
-        hashSequence = hashSequence.replace("txnid", transaction.getTxnId());
+    	 String hashSequence = "merchant_id|order_id|currency|amount|redirect_url|cancel_url|language||||||||||";
+        hashSequence = hashSequence.replace("merchant_id", MERCHANT_ACCESS_CODE);
+        hashSequence = hashSequence.replace("order_id", transaction.getTxnId());
+        hashSequence = hashSequence.replace("currency", transaction.getTxnId());
         hashSequence = hashSequence.replace("amount", Utils.formatAmtAsRupee(transaction.getTxnAmount()));
-        hashSequence = hashSequence.replace("productinfo", transaction.getProductInfo());
-        hashSequence = hashSequence.replace("firstname", transaction.getUser().getName());
-        hashSequence = hashSequence.replace("email", Objects.toString(transaction.getUser().getEmailId(), ""));
+        hashSequence = hashSequence.replace("redirect_url", "");
+        hashSequence = hashSequence.replace("cancel_url", transaction.getUser().getName());
+        hashSequence = hashSequence.replace("language", Objects.toString(transaction.getUser().getEmailId(), ""));
 
         String hash = hashCal(hashSequence);
 
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("merchant_id", MERCHANT_KEY_ID);
-        params.add("order_id", transaction.getTxnId());
-        params.add("amount", Utils.formatAmtAsRupee(transaction.getTxnAmount()));
-        params.add("currency", "INR");
-        params.add("billing_name", transaction.getUser().getName());
-        params.add("billing_email", Objects.toString(transaction.getUser().getEmailId(), ""));
-        params.add("billing_tel", transaction.getUser().getMobileNumber());
-        params.add("redirect_url", transaction.getCallbackUrl());
-        params.add("cancel_url", transaction.getCallbackUrl());
-        params.add("hash", hash);
+        
 
+        List<KeyValuePair> pairList = new ArrayList<>();
+        String ccaRequest="";
+        // Adding elements to the list
+        pairList.add(new KeyValuePair("merchant_id", MERCHANT_KEY_ID));
+        pairList.add(new KeyValuePair("order_id",transaction.getTxnId()));
+        pairList.add(new KeyValuePair("currency", "INR"));
+        pairList.add(new KeyValuePair("amount",Utils.formatAmtAsRupee(transaction.getTxnAmount())));
+        pairList.add(new KeyValuePair("redirect_url",  transaction.getCallbackUrl()));
+        pairList.add(new KeyValuePair("cancel_url",  transaction.getCallbackUrl()));
+        pairList.add(new KeyValuePair("language", "EN"));
+
+        pairList.add(new KeyValuePair("billing_name", transaction.getUser().getName()));
+        pairList.add(new KeyValuePair("billing_address",transaction.getUser().getTenantId()));
+        pairList.add(new KeyValuePair("billing_city",transaction.getUser().getTenantId()));
+        pairList.add(new KeyValuePair("billing_state","Punjab"));
+        pairList.add(new KeyValuePair("billing_zip", ""));
+        pairList.add(new KeyValuePair("billing_country", "INDIA"));
+        pairList.add(new KeyValuePair("billing_tel",transaction.getUser().getMobileNumber()));
+        pairList.add(new KeyValuePair("billing_email", transaction.getUser().getEmailId()));
+        
+        pairList.add(new KeyValuePair("delivery_name", transaction.getUser().getName()));
+        pairList.add(new KeyValuePair("delivery_address",transaction.getUser().getTenantId()));
+        pairList.add(new KeyValuePair("delivery_city",transaction.getUser().getTenantId()));
+        pairList.add(new KeyValuePair("delivery_state","Punjab"));
+        pairList.add(new KeyValuePair("delivery_zip",  ""));
+        pairList.add(new KeyValuePair("delivery_country",  "India"));
+        pairList.add(new KeyValuePair("delivery_tel", transaction.getUser().getMobileNumber()));
+        pairList.add(new KeyValuePair("merchant_param1", transaction.getUser().getEmailId()));
+        
+        
+        pairList.add(new KeyValuePair("promo_code", ""));
+        pairList.add(new KeyValuePair("customer_identifier", transaction.getConsumerCode()));
+        
+        for (KeyValuePair pair : pairList) {
+        	ccaRequest = ccaRequest + pair.getKey() + "=" + pair.getValue() + "&";
+            //System.out.println("Key: " + pair.getKey() + ", Value: " + pair.getValue());
+           
+        }
+        System.out.println("Key2:"+ ccaRequest);
+        System.out.println("Key2:"+ MERCHANT_WORKING_KEY);
+
+        AesUtil aesUtil=new AesUtil(MERCHANT_WORKING_KEY);
+   	 String encRequest = aesUtil.encrypt(ccaRequest);
+System.out.println(encRequest);
+MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+params.add("command", "initiateTransaction");
+params.add("encRequest", encRequest);
+params.add("access_code", MERCHANT_ACCESS_CODE);
         UriComponents uriComponents = UriComponentsBuilder.newInstance().scheme("https").host(MERCHANT_URL_PAY).path
                 (MERCHANT_PATH_PAY).build();
 
         try {
             HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
             HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(params, headers);
             System.out.println("params "+ params);
-            System.out.println("headers "+headers);
             URI redirectUri = restTemplate.postForLocation(
                     uriComponents.toUriString(), entity
             );
