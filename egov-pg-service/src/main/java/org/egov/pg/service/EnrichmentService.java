@@ -69,7 +69,8 @@ public class EnrichmentService {
 			additionDetailsMap.put("taxAndPayments", (Object) transaction.getTaxAndPayments());
 			transaction.setAdditionalDetails(objectMapper.convertValue(additionDetailsMap, JsonNode.class));
 		}
-        
+        System.out.println("URI"+transaction.getCallbackUrl());
+        System.out.println(UriComponentsBuilder.fromHttpUrl(transaction.getCallbackUrl()).toUriString());
         String uri = UriComponentsBuilder
                 .fromHttpUrl(transaction.getCallbackUrl())
                 .queryParams(new LinkedMultiValueMap<>(singletonMap(PgConstants.PG_TXN_IN_LABEL,
