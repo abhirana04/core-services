@@ -52,7 +52,9 @@ public class PreHookFilter extends ZuulFilter {
                 String.class);
 
             CustomRequestWrapper requestWrapper = new CustomRequestWrapper(ctx.getRequest());
-               System.out.println("Pre hook filter "+response);
+             System.out.println("Pre hook filters uri  "+uri);
+              System.out.println("Pre hook filters req   "+req);
+               System.out.println("Pre hook filters response  "+response);
             requestWrapper.setPayload(response);
             ctx.setRequest(requestWrapper);
         } catch (HttpClientErrorException|HttpServerErrorException e) {
