@@ -39,7 +39,12 @@ public class PreHookFilter extends ZuulFilter {
 
         DocumentContext reqDc = parseRequest(ctx);
         String uri = ctx.getRequest().getRequestURI();
+        System.out.println("Uri Pre Hook "+uri);
+                    System.out.println("Pre hook filter "+ctx);
+
+
         PreHookFilterRequest req = PreHookFilterRequest.builder().Request(reqDc.jsonString()).build();
+             System.out.println("Pre hook filter "+req);
         String response = null;
         try {
             log.debug("Executing pre-hook filter. Sending request to - " + UrlProvider.getUrlPreHooksMap().get(uri));
@@ -47,6 +52,7 @@ public class PreHookFilter extends ZuulFilter {
                 String.class);
 
             CustomRequestWrapper requestWrapper = new CustomRequestWrapper(ctx.getRequest());
+               System.out.println("Pre hook filter "+response);
             requestWrapper.setPayload(response);
             ctx.setRequest(requestWrapper);
         } catch (HttpClientErrorException|HttpServerErrorException e) {
@@ -90,6 +96,8 @@ public class PreHookFilter extends ZuulFilter {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+                    System.out.print("payload pre hook "+payload);
+
         return JsonPath.parse(payload);
     }
 
