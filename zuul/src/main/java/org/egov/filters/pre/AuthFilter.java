@@ -56,7 +56,6 @@ public class AuthFilter extends ZuulFilter {
     @Override
     public Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
-          System.out.println("Auth filter "+ctx);
         String authToken = (String) ctx.get(AUTH_TOKEN_KEY);
         try {
             User user = getUser(authToken, ctx);
