@@ -47,14 +47,14 @@ public class PreHookFilter extends ZuulFilter {
              System.out.println("Pre hook filter "+req);
         String response = null;
         try {
-            log.debug("Executing pre-hook filter. Sending request to - " + UrlProvider.getUrlPreHooksMap().get(uri));
+            
             response = restTemplate.postForObject(UrlProvider.getUrlPreHooksMap().get(uri), req,
                 String.class);
-
+            log.debug("Executing pre-hook filter. Sending request to - " + UrlProvider.getUrlPreHooksMap().get(uri));
+             log.info("Executing pre-hook filter. Request  - " + req);
+            log.info("Executing pre-hook filter. Response - " + response);
+              log.info("Executing pre-hook filter. ctx - " + ctx);
             CustomRequestWrapper requestWrapper = new CustomRequestWrapper(ctx.getRequest());
-             System.out.println("Pre hook filters uri  "+uri);
-              System.out.println("Pre hook filters req   "+req);
-               System.out.println("Pre hook filters response  "+response);
             requestWrapper.setPayload(response);
             ctx.setRequest(requestWrapper);
         } catch (HttpClientErrorException|HttpServerErrorException e) {
