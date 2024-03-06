@@ -39,21 +39,17 @@ public class PreHookFilter extends ZuulFilter {
 
         DocumentContext reqDc = parseRequest(ctx);
         String uri = ctx.getRequest().getRequestURI();
-        System.out.println("Uri Pre Hook "+uri);
-                    System.out.println("Pre hook filter "+ctx);
-
-
         PreHookFilterRequest req = PreHookFilterRequest.builder().Request(reqDc.jsonString()).build();
              System.out.println("Pre hook filter "+req);
         String response = null;
         try {
-            
+              log.debug("Executing pre-hook filter. Sending request to URI - " + UrlProvider.getUrlPreHooksMap().get(uri));
+             log.info("Executing pre-hook filter. Request  - " + req);
+               log.info("Executing pre-hook filter. ctx - " + ctx);
             response = restTemplate.postForObject(UrlProvider.getUrlPreHooksMap().get(uri), req,
                 String.class);
-            log.debug("Executing pre-hook filter. Sending request to - " + UrlProvider.getUrlPreHooksMap().get(uri));
-             log.info("Executing pre-hook filter. Request  - " + req);
             log.info("Executing pre-hook filter. Response - " + response);
-              log.info("Executing pre-hook filter. ctx - " + ctx);
+           
             CustomRequestWrapper requestWrapper = new CustomRequestWrapper(ctx.getRequest());
             requestWrapper.setPayload(response);
             ctx.setRequest(requestWrapper);
