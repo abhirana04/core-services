@@ -343,8 +343,10 @@ public static String processUrlConnectionReq(String pBankData,String pBankUrl) t
         String tanAmtArray[] = keyValuePairs1[3].split(":");
 	String finalStatus[] = keyValuePairs1[23].split(":");
         String finalOrderStatus= finalStatus[1];
+	finalOrderStatus = finalOrderStatus.substring(1, (finalOrderStatus.length()-1));
        // status2= "0";
-        if (gatewayStatus[1].equalsIgnoreCase("0") && finalOrderStatus.equalsIgnoreCase("Successful")) {
+        if (gatewayStatus[1].equalsIgnoreCase("0") && (finalOrderStatus.equalsIgnoreCase("Successful")|| 
+        		finalOrderStatus.equalsIgnoreCase("Success")|| finalOrderStatus.equalsIgnoreCase("Shipped"))) {
             status = Transaction.TxnStatusEnum.SUCCESS;
             return Transaction.builder()
                     .txnId(currentStatus.getTxnId())
